@@ -7,7 +7,7 @@ NUMBERS = "01233456789"
 
 
 def init_board(rows, columns):
-    return [[WATER for i in range(rows)] for j in range(columns)]
+    return [[WATER for i in range(columns)] for j in range(rows)]
 
 
 def cell_locations(board):
@@ -195,6 +195,7 @@ def main():
 
             if computer_hit_count == sum(SHIP_SIZES) or human_hit_count == sum(
                     SHIP_SIZES):
+                helper.print_board(human_board,computer_board)
                 if computer_hit_count == sum(SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
                     winner = "Both human and computer"
                 elif computer_hit_count == sum(SHIP_SIZES):
