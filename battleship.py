@@ -202,11 +202,12 @@ def main():
                     winner = "Computer"
                 else:
                     winner = "Human"
+                game = False
                 if play_again(winner):
                     human_board, computer_board, human_hit_count, computer_hit_count = play()
-                else:
-                    game = False
-                    return
+                    game = True
+
+
 
             helper.print_board(human_board, hidden_board(computer_board))
 
