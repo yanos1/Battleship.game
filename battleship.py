@@ -126,14 +126,15 @@ def play():
 
 
 def play_again(winner):
-     user_input = input(f"{winner} win! would you like to play again?(Y/N)")
-     while user_input not in "YN":
-         user_input = input("Please enter Y or N ONLY!")
+    user_input = input(f"{winner} win! would you like to play again?(Y/N)")
 
-     if user_input == "Y":
-         return True
-     else:
-         return False
+    while True:
+        if user_input == "Y":
+            return True
+        elif user_input == "N":
+            return False
+        user_input = input("Please enter Y or N ONLY!")
+
 
 def hidden_board(board):
     hidden = []
@@ -154,65 +155,60 @@ def main():
     human_board, computer_board, human_hit_count, computer_hit_count = play()
     game = True
     while game:
-        while human_hit_count != sum(SHIP_SIZES) or computer_hit_count != sum(
-                SHIP_SIZES):
-            helper.print_board(human_board, hidden_board(computer_board))
-            hit = False
-            while not hit:
-                human_hit_request = get_input(
-                    "Please enter a valid bombing location: ")
-                if valid_input(turn_upper(human_hit_request), computer_board):
-                    cell_bombing_location = cell_loc(turn_upper(human_hit_request))
+        helper.print_board(human_board, hidden_board(computer_board))
+        hit = False
+        while not hit:
+            human_hit_request = get_input(
+                "Please enter a valid bombing location: ")
+            if valid_input(turn_upper(human_hit_request), computer_board):
+                cell_bombing_location = cell_loc(turn_upper(human_hit_request))
+                if computer_board[cell_bombing_location[0]][
+                    cell_bombing_location[1]] != HIT_SHIP and \
+                        computer_board[cell_bombing_location[0]][
+                            cell_bombing_location[1]] != HIT_WATER:
+                    fire_torpedo(computer_board, cell_bombing_location)
+                    hit = True
                     if computer_board[cell_bombing_location[0]][
-                        cell_bombing_location[1]] != HIT_SHIP and \
-                            computer_board[cell_bombing_location[0]][
-                                cell_bombing_location[1]] != HIT_WATER:
-                        fire_torpedo(computer_board, cell_bombing_location)
-                        hit = True
-                        if computer_board[cell_bombing_location[0]][
-                            cell_bombing_location[1]] == HIT_SHIP:
-                            human_hit_count += 1
+                        cell_bombing_location[1]] == HIT_SHIP:
+                        human_hit_count += 1
 
-                    else:
-                        print("Did you understand how to win? maybe\\"
-                              " try hitting ships ")
                 else:
-                    print("Invalid input!")
-            computer_hit = False
-            while not computer_hit:
-                computer_hit_request = helper.choose_torpedo_target(
-                    human_board,
-                    cell_locations(human_board))
+                    print("Did you understand how to win? maybe "
+                          " try hitting ships ")
+            else:
+                print("Invalid input!")
+        computer_hit = False
+        while not computer_hit:
+            computer_hit_request = helper.choose_torpedo_target(
+                human_board,
+                cell_locations(human_board))
+            if human_board[computer_hit_request[0]][
+                computer_hit_request[1]] != HIT_SHIP and human_board[
+                computer_hit_request[0]][
+                computer_hit_request[1]] != HIT_WATER:
+                fire_torpedo(human_board, computer_hit_request)
+                computer_hit = True
                 if human_board[computer_hit_request[0]][
-                    computer_hit_request[1]] != HIT_SHIP and human_board[
-                    computer_hit_request[0]][
-                        computer_hit_request[1]] != HIT_WATER:
-                    fire_torpedo(human_board, computer_hit_request)
-                    computer_hit = True
-                    if human_board[computer_hit_request[0]][
-                        computer_hit_request[1]] == SHIP:
-                        computer_hit_count += 1
+                    computer_hit_request[1]] == HIT_SHIP:
+                    computer_hit_count += 1
 
-            if computer_hit_count == sum(SHIP_SIZES) or human_hit_count == sum(
-                    SHIP_SIZES):
-                helper.print_board(human_board,computer_board)
-                if computer_hit_count == sum(SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
-                    winner = "Both human and computer"
-                elif computer_hit_count == sum(SHIP_SIZES):
-                    winner = "Computer"
-                else:
-                    winner = "Human"
-                game = False
-                if play_again(winner):
-                    human_board, computer_board, human_hit_count, computer_hit_count = play()
-                    game = True
-
-
+        if computer_hit_count == sum(SHIP_SIZES) or human_hit_count == sum(
+                SHIP_SIZES):
+            helper.print_board(human_board, computer_board)
+            if computer_hit_count == sum(
+                    SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
+                winner = "Both human and computer"
+            elif computer_hit_count == sum(SHIP_SIZES):
+                winner = "Computer"
+            else:
+                winner = "Human"
+            if play_again(winner):
+                human_board, computer_board, human_hit_count, computer_hit_count = play()
+            else:
+                return
 
             helper.print_board(human_board, hidden_board(computer_board))
 
 
 if __name__ == "__main__":
     main()
-
-

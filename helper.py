@@ -3,9 +3,9 @@
 import sys
 import random
 
-NUM_ROWS = 3
-NUM_COLUMNS = 3
-SHIP_SIZES =  (2, 2)
+NUM_ROWS = 1
+NUM_COLUMNS = 1
+SHIP_SIZES =  (1,)
 
 WATER = 0
 SHIP = 1
