@@ -66,7 +66,7 @@ def is_int(s):
         return False
 
 def random_cell(cells):
-    return random.choice(sorted(cells))
+     return random.choice(sorted(cells))
 
 def choose_ship_location(board, size, locations):
     '''Choose a location for a ship.

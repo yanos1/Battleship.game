@@ -7,11 +7,11 @@ NUMBERS = "01233456789"
 
 
 def init_board(rows, columns):
-    return [[WATER for i in range(rows)] for j in range(columns)]
+    return [[WATER for i in range(columns)] for j in range(rows)]
 
 
 def cell_locations(board):
-    return [(i, j) for i in range(len(board)) for j in range(len(board[0]))]
+    return {(i, j) for i in range(len(board)) for j in range(len(board[0]))}
 
 
 def cell_loc(loc):  # A2
@@ -27,6 +27,29 @@ def cell_loc(loc):  # A2
 
 def needed_locations(loc, size):
     return [(loc[0] + i, loc[1]) for i in range(size)]
+
+
+def updated_cell_locations(board, size):
+    res = set()
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == WATER:
+                valid = valid_ship(board, size, (i, j))
+                if valid:
+                    res.add((i, j))
+
+    #print("Valid shit locations for computer: \n", res)
+    return res
+
+
+def valid_computer_hit(board):
+    res = set()
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == WATER:
+                res.add((i, j))
+    #print("valid conputer hit locationsL]: \n", res)
+    return res
 
 
 def turn_upper(string):
@@ -113,27 +136,41 @@ def fire_torpedo(board, loc):
     return board
 
 
+def create_computer_board(rows, cols, ships):
+    board = init_board(rows, cols)
+    for ship in ships:
+        loc = helper.choose_ship_location(board, ship,
+                                          updated_cell_locations(board, ship))
+        for i in needed_locations(loc, ship):
+            board[i[0]][i[1]] = SHIP
+    return board
+
+
 def play():
     human_board = create_player_board(NUM_ROWS,
                                       NUM_COLUMNS,
                                       SHIP_SIZES)
-    computer_board = create_player_board(NUM_ROWS,
-                                         NUM_COLUMNS,
-                                         SHIP_SIZES)
+    computer_board = create_computer_board(NUM_ROWS,
+                                           NUM_COLUMNS,
+                                           SHIP_SIZES)
     human_hit_count = 0
     computer_hit_count = 0
     return human_board, computer_board, human_hit_count, computer_hit_count
 
 
 def play_again(winner):
-     user_input = input(f"{winner} win! would you like to play again?(Y/N)")
-     while user_input not in "YN":
-         user_input = input("Please enter Y or N ONLY!")
+    user_input = get_input(f"{winner} win! would you like to play again?(Y/N)")
+    if user_input =="Y":
+        return True
+    else:
+        while user_input != "Y" or user_input !="N":
+            user_input = get_input("Please enter Y or N ONLY!")
+            if user_input == "Y":
+                return True
+            elif user_input =="N":
+                break
+    return False
 
-     if user_input == "Y":
-         return True
-     else:
-         return False
 
 def hidden_board(board):
     hidden = []
@@ -153,16 +190,17 @@ def hidden_board(board):
 def main():
     human_board, computer_board, human_hit_count, computer_hit_count = play()
     game = True
+    helper.print_board(human_board, hidden_board(computer_board))
     while game:
         while human_hit_count != sum(SHIP_SIZES) or computer_hit_count != sum(
                 SHIP_SIZES):
-            helper.print_board(human_board, hidden_board(computer_board))
             hit = False
             while not hit:
                 human_hit_request = get_input(
                     "Please enter a valid bombing location: ")
                 if valid_input(turn_upper(human_hit_request), computer_board):
-                    cell_bombing_location = cell_loc(turn_upper(human_hit_request))
+                    cell_bombing_location = cell_loc(
+                        turn_upper(human_hit_request))
                     if computer_board[cell_bombing_location[0]][
                         cell_bombing_location[1]] != HIT_SHIP and \
                             computer_board[cell_bombing_location[0]][
@@ -178,33 +216,30 @@ def main():
                               " try hitting ships ")
                 else:
                     print("Invalid input!")
-            computer_hit = False
-            while not computer_hit:
-                computer_hit_request = helper.choose_torpedo_target(
-                    human_board,
-                    cell_locations(human_board))
-                if human_board[computer_hit_request[0]][
-                    computer_hit_request[1]] != HIT_SHIP and human_board[
-                    computer_hit_request[0]][
-                        computer_hit_request[1]] != HIT_WATER:
-                    fire_torpedo(human_board, computer_hit_request)
-                    computer_hit = True
-                    if human_board[computer_hit_request[0]][
-                        computer_hit_request[1]] == SHIP:
-                        computer_hit_count += 1
+            computer_hit = helper.choose_torpedo_target(
+                hidden_board(human_board), valid_computer_hit(hidden_board(human_board)))
+            if human_board[computer_hit[0]][computer_hit[1]] == SHIP:
+                computer_hit_count += 1
+                human_board[computer_hit[0]][computer_hit[1]] = HIT_SHIP
 
-            if computer_hit_count == sum(SHIP_SIZES) or human_hit_count == sum(
-                    SHIP_SIZES):
-                if computer_hit_count == sum(SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
+            elif human_board[computer_hit[0]][computer_hit[1]] == WATER:
+                human_board[computer_hit[0]][computer_hit[1]] = HIT_WATER
+
+            if computer_hit_count == sum(
+                    SHIP_SIZES) or human_hit_count == sum(
+                SHIP_SIZES):
+
+                if computer_hit_count == sum(
+                        SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
                     winner = "Both human and computer"
                 elif computer_hit_count == sum(SHIP_SIZES):
                     winner = "Computer"
                 else:
                     winner = "Human"
                 if play_again(winner):
-                    human_board, computer_board, human_hit_count, computer_hit_count = play()
+                    human_board, computer_board, human_hit_count, \
+                    computer_hit_count = play()
                 else:
-                    game = False
                     return
 
             helper.print_board(human_board, hidden_board(computer_board))
@@ -212,5 +247,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
