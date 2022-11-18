@@ -228,6 +228,7 @@ def main():
             if computer_hit_count == sum(
                     SHIP_SIZES) or human_hit_count == sum(
                 SHIP_SIZES):
+                helper.print_board(human_board, computer_board)
 
                 if computer_hit_count == sum(
                         SHIP_SIZES) and human_hit_count == sum(SHIP_SIZES):
