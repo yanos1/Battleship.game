@@ -89,7 +89,7 @@ def valid_ship(board, size, loc):
     locations = needed_locations((loc[0], loc[1]), size)
     for location in locations:
         if location in cell_locations(board):
-            if board[location[0]][location[1]] != 1:
+            if board[location[0]][location[1]] != SHIP:
                 continue
             else:
                 valid = False
